@@ -1,3 +1,6 @@
+# More Info
+[Project Wiki](https://github.com/lisbono2001/coffeemaker/wiki)
+
 CoffeeMaker JUnit - Buggy Version
 =================================
 In this assignment, you'll get some practice at building effective unit tests on a slightly larger example of a coffee maker. The coffee maker allows you to set up recipes, add ingredients, and to make one of several beverages, provided that you insert enough money. It is an often-used pedagogical example from our colleague [Laurie Williams](https://www.csc.ncsu.edu/people/lawilli3) at NC State University. A list of the user stories (requirements) and use cases are included in the `Requirements-CoffeeMaker.pdf` file.

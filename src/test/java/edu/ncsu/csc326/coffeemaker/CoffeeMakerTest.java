@@ -18,18 +18,22 @@
  */
 package edu.ncsu.csc326.coffeemaker;
 
-import static org.junit.Assert.assertEquals;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.ncsu.csc326.coffeemaker.exceptions.InventoryException;
 import edu.ncsu.csc326.coffeemaker.exceptions.RecipeException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.*;
+
 /**
  * Unit tests for CoffeeMaker class.
  * 
- * @author Sarah Heckman
+ * @author Sarah Heckman & Theetouch Kasemarnontana
  */
 public class CoffeeMakerTest {
 	
@@ -91,13 +95,204 @@ public class CoffeeMakerTest {
 		recipe4.setAmtSugar("1");
 		recipe4.setPrice("65");
 	}
-	
-	
+
 	/**
+	 * Test Case ID : 1
+	 */
+	@Test
+	public void testWaitingState() {
+	}
+
+	/**
+	 * Test Case ID : 2
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add a recipe
+	 * Then we do not get an exception trying to add the recipe
+	 */
+	@Test
+	public void testAddRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+	}
+
+	/**
+	 * Test Case ID : 3
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add a recipe
+	 * Then we do not get an exception trying to add the recipe
+	 * and the recipe we added is successfully and correctly added
+	 */
+	@Test
+	public void testAddRecipeCorrectness() {
+		//create a new array and add 'recipe1' to the first element
+		//Number of recipes in each coffee maker = 4
+		Recipe[] testrecipeBook = new Recipe[4];
+		testrecipeBook[0] = recipe1;
+		//also do that for coffee maker
+		coffeeMaker.addRecipe(recipe1);
+		//check that recipe1 is the first recipe
+		assertEquals(recipe1, coffeeMaker.getRecipes()[0]);
+		//check that no next recipe added
+		assertNull(coffeeMaker.getRecipes()[1]);
+		//check that both recipeBook is equal
+		assertArrayEquals(testrecipeBook,coffeeMaker.getRecipes());
+	}
+
+	/**
+	 * Test Case ID : 4
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete a recipe
+	 * Then we do not get an exception trying to delete the recipe
+	 */
+	@Test
+	public void testDeleteRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.deleteRecipe(0);
+	}
+
+	/**
+	 * Test Case ID : 5
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete a recipe
+	 * Then we do not get an exception trying to delete the recipe
+	 */
+	@Test
+	public void testDeleteRecipeCorrectness() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.deleteRecipe(0);
+		assertNotEquals(recipe1, coffeeMaker.getRecipes()[0]);
+		assertNull(coffeeMaker.getRecipes()[0]);
+	}
+
+	/**
+	 * Test Case ID : 6
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete a recipe
+	 * Then we do not get an exception trying to delete the recipe
+	 */
+	@Test
+	public void testDeleteRecipeSorting() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.addRecipe(recipe2);
+		coffeeMaker.deleteRecipe(0);
+		assertEquals(recipe2, coffeeMaker.getRecipes()[1]);
+	}
+
+	/**
+	 * Test Case ID : 7
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete an invalid recipe (larger)
+	 * Then we do get a null (delete failed)
+	 */
+	@Test
+	public void testDeleteLargerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertNull(coffeeMaker.deleteRecipe(1));
+	}
+
+	/**
+	 * Test Case ID : 8
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete an invalid recipe (smaller)
+	 * Then we do get a null (delete failed)
+	 */
+	@Test
+	public void testDeleteSmallerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertNull(coffeeMaker.deleteRecipe(-1));
+	}
+
+	/**
+	 * Test Case ID : 9
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we delete a recipe
+	 * Then we do not get an exception trying to delete the recipe
+	 */
+	@Test
+	public void testEditRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.editRecipe(0,recipe2);
+	}
+
+	/**
+	 * Test Case ID : 10
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we edit a recipe
+	 * Then we do not get an exception trying to edit the recipe
+	 */
+	@Test
+	public void testEditRecipeCorrectness() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.editRecipe(0,recipe2);
+		assertNotEquals(recipe1, coffeeMaker.getRecipes()[0]);
+		assertEquals(recipe2, coffeeMaker.getRecipes()[0]);
+	}
+
+	/**
+	 * Test Case ID : 11
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we edit a recipe
+	 * Then we do not get an exception trying to edit the recipe
+	 */
+	@Test
+	public void testEditLargerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertNull(coffeeMaker.editRecipe(1,recipe2));
+	}
+
+	/**
+	 * Test Case ID : 12
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we edit a recipe
+	 * Then we do not get an exception trying to edit the recipe
+	 */
+	@Test
+	public void testEditSmallerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertNull(coffeeMaker.editRecipe(-1,recipe2));
+	}
+
+	/**
+	 * Test Case ID : 13
+	 *
+	 * Given an inventory with specific value
+	 * Then the expected output of showing inventory is correct
+	 * and so on checkInventory function of coffee maker (since the input values
+	 * is default of a coffee maker)
+	 */
+	@Test
+	public void testCheckInventory() {
+		Inventory inventory = new Inventory();
+		inventory.setMilk(15);
+		inventory.setChocolate(15);
+		inventory.setCoffee(15);
+		inventory.setSugar(15);
+		assertEquals(
+				"Coffee: 15\n" +
+						"Milk: 15\n" +
+						"Sugar: 15\n" +
+						"Chocolate: 15\n" , inventory.toString()
+		);
+		assertEquals(inventory.toString(), coffeeMaker.checkInventory());
+	}
+
+	/**
+	 * Test Case ID : 14
+	 *
 	 * Given a coffee maker with the default inventory
 	 * When we add inventory with well-formed quantities
 	 * Then we do not get an exception trying to read the inventory quantities.
-	 * 
+	 *
 	 * @throws InventoryException  if there was an error parsing the quanity
 	 * 		to a positive integer.
 	 */
@@ -105,13 +300,106 @@ public class CoffeeMakerTest {
 	public void testAddInventory() throws InventoryException {
 		coffeeMaker.addInventory("4","7","0","9");
 	}
-	
+
 	/**
+	 * Test Case ID : 15
+	 *
 	 * Given a coffee maker with the default inventory
-	 * When we add inventory with malformed quantities (i.e., a negative 
+	 * When we add inventory with well-formed quantities
+	 * Then we do not get an exception trying to read the inventory quantities.
+	 *
+	 * @throws InventoryException  if there was an error parsing the quanity
+	 * 		to a positive integer.
+	 */
+	@Test
+	public void testAddInventoryCorrectness() throws InventoryException {
+		String amtCoffee = "4";
+		String amtMilk= "7";
+		String amtSugar = "0";
+		String amtChocolate = "9";
+
+		Inventory inventory = new Inventory();
+		inventory.addCoffee(amtCoffee);
+		inventory.addMilk(amtMilk);
+		inventory.addSugar(amtSugar);
+		inventory.addChocolate(amtChocolate);
+
+		coffeeMaker.addInventory(amtCoffee,amtMilk,amtSugar,amtChocolate);
+		assertEquals(inventory.toString(), coffeeMaker.checkInventory());
+	}
+
+	/**
+	 * Test Case ID : 16
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add inventory with malformed quantities (i.e., a negative
 	 * quantity and a non-numeric string)
 	 * Then we get an inventory exception
-	 * 
+	 *
+	 * @throws InventoryException  if there was an error parsing the quanity
+	 * 		to a positive integer.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddCoffeeInventoryException() throws InventoryException {
+		coffeeMaker.addInventory("-4", "1", "1", "3");
+	}
+
+	/**
+	 * Test Case ID : 17
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add inventory with malformed quantities (i.e., a negative
+	 * quantity and a non-numeric string)
+	 * Then we get an inventory exception
+	 *
+	 * @throws InventoryException  if there was an error parsing the quanity
+	 * 		to a positive integer.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddMilkInventoryException() throws InventoryException {
+		coffeeMaker.addInventory("4", "-1", "1", "3");
+	}
+
+	/**
+	 * Test Case ID : 18
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add with malformed quantities (i.e., a negative
+	 * quantity and a non-numeric string)
+	 * Then we get an inventory exception
+	 *
+	 * @throws InventoryException  if there was an error parsing the quanity
+	 * 		to a positive integer.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddSugarInventoryException() throws InventoryException {
+		coffeeMaker.addInventory("4", "-1", "asdf", "3");
+	}
+
+	/**
+	 * Test Case ID : 19
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add chocolate inventory with malformed quantities (i.e., a negative
+	 * quantity and a non-numeric string)
+	 * Then we get an inventory exception
+	 *
+	 * @throws InventoryException  if there was an error parsing the quanity
+	 * 		to a positive integer.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddChocolateInventoryException() throws InventoryException {
+		coffeeMaker.addInventory("4", "1", "2", "-1");
+	}
+
+	/**
+	 * Test Case ID : 20
+	 *
+	 * Given a coffee maker with the default inventory
+	 * When we add inventory with malformed quantities (i.e., a negative
+	 * quantity and a non-numeric string)
+	 * Then we get an inventory exception
+	 *
 	 * @throws InventoryException  if there was an error parsing the quanity
 	 * 		to a positive integer.
 	 */
@@ -119,17 +407,76 @@ public class CoffeeMakerTest {
 	public void testAddInventoryException() throws InventoryException {
 		coffeeMaker.addInventory("4", "-1", "asdf", "3");
 	}
-	
+
 	/**
+	 * Test Case ID : 21
+	 *
 	 * Given a coffee maker with one valid recipe
-	 * When we make coffee, selecting the valid recipe and paying more than 
+	 * When we make coffee, selecting the valid recipe and paying more than
 	 * 		the coffee costs
 	 * Then we get the correct change back.
 	 */
 	@Test
-	public void testMakeCoffee() {
+	public void testMakeCoffeeWithChange() {
 		coffeeMaker.addRecipe(recipe1);
 		assertEquals(25, coffeeMaker.makeCoffee(0, 75));
 	}
 
+	/**
+	 * Test Case ID : 22
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting the valid recipe and paying equal to
+	 * 		the coffee costs
+	 * Then we get the correct change back.
+	 */
+	@Test
+	public void testMakeCoffeeWithNoChange() {
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals(0, coffeeMaker.makeCoffee(0, 50));
+	}
+
+	/**
+	 * Test Case ID : 23
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting the valid recipe and paying less than
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 */
+	@Test
+	public void testMakeCoffeeNotEnoughBalance() {
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals(40, coffeeMaker.makeCoffee(0, 40));
+	}
+
+	/**
+	 * Test Case ID : 24
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting an invalid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void testMakeCoffeeLargerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals(50, coffeeMaker.makeCoffee(1, 50));
+	}
+
+	/**
+	 * Test Case ID : 25
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting an invalid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void testMakeCoffeeSmallerRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals(50, coffeeMaker.makeCoffee(-1, 50));
+	}
 }

@@ -205,12 +205,7 @@ public class CoffeeMakerTest {
 	@Test
 	public void testDeleteSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
-		try {
-			assertNull(coffeeMaker.deleteRecipe(-1));
-		}
-		catch (Exception e) {
-			Assert.fail("Exception " + e);
-		}
+		assertNull(coffeeMaker.deleteRecipe(-1));
 	}
 
 	/**

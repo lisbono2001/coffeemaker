@@ -59,7 +59,7 @@ public class CoffeeMakerTest {
 	public void setUp() throws RecipeException {
 		coffeeMaker = new CoffeeMaker();
 		
-		//Set up for r1
+		//Set up for recipe 1
 		recipe1 = new Recipe();
 		recipe1.setName("Coffee");
 		recipe1.setAmtChocolate("0");
@@ -68,7 +68,7 @@ public class CoffeeMakerTest {
 		recipe1.setAmtSugar("1");
 		recipe1.setPrice("50");
 		
-		//Set up for r2
+		//Set up for recipe 2
 		recipe2 = new Recipe();
 		recipe2.setName("Mocha");
 		recipe2.setAmtChocolate("20");
@@ -77,7 +77,7 @@ public class CoffeeMakerTest {
 		recipe2.setAmtSugar("1");
 		recipe2.setPrice("75");
 		
-		//Set up for r3
+		//Set up for recipe 3
 		recipe3 = new Recipe();
 		recipe3.setName("Latte");
 		recipe3.setAmtChocolate("0");
@@ -86,13 +86,13 @@ public class CoffeeMakerTest {
 		recipe3.setAmtSugar("1");
 		recipe3.setPrice("100");
 		
-		//Set up for r4
+		//Set up for recipe 4
 		recipe4 = new Recipe();
 		recipe4.setName("Hot Chocolate");
-		recipe4.setAmtChocolate("4");
-		recipe4.setAmtCoffee("0");
-		recipe4.setAmtMilk("1");
-		recipe4.setAmtSugar("1");
+		recipe4.setAmtChocolate("20");
+		recipe4.setAmtCoffee("20");
+		recipe4.setAmtMilk("20");
+		recipe4.setAmtSugar("20");
 		recipe4.setPrice("65");
 	}
 
@@ -483,5 +483,20 @@ public class CoffeeMakerTest {
 	public void testMakeCoffeeSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
 		assertEquals(50, coffeeMaker.makeCoffee(-1, 50));
+	}
+
+	/**
+	 * Test Case ID : 26
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs but the selecting recipe is out of stock
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void testMakeCoffeeOutOfInventory() {
+		coffeeMaker.addRecipe(recipe4);
+		assertEquals(70, coffeeMaker.makeCoffee(0, 70));
 	}
 }

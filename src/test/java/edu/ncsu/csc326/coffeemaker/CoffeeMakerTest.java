@@ -205,7 +205,12 @@ public class CoffeeMakerTest {
 	@Test
 	public void testDeleteSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
-		assertNull(coffeeMaker.deleteRecipe(-1));
+		try {
+			assertNull(coffeeMaker.deleteRecipe(-1));
+		}
+		catch (Exception e) {
+			Assert.fail("Exception " + e);
+		}
 	}
 
 	/**
@@ -259,7 +264,7 @@ public class CoffeeMakerTest {
 	@Test
 	public void testEditSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
-		assertNull(coffeeMaker.editRecipe(-1,recipe2));
+		assertNull(coffeeMaker.editRecipe(-1, recipe2));
 	}
 
 	/**

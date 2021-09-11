@@ -29,36 +29,47 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for CoffeeMaker class.
- * 
+ *
  * @author Sarah Heckman & Theetouch Kasemarnontana
  */
 public class CoffeeMakerTest {
-	
+
 	/**
 	 * The object under test.
 	 */
 	private CoffeeMaker coffeeMaker;
-	
+
 	// Sample recipes to use in testing.
 	private Recipe recipe1;
 	private Recipe recipe2;
 	private Recipe recipe3;
 	private Recipe recipe4;
 
+	private CoffeeMaker coffeeMakerWithRecipeBookMock;
+	private RecipeBook recipeBookMock;
+	private Recipe[] recipeArray;
+	private Inventory inventory;
+
 	/**
-	 * Initializes some recipes to test with and the {@link CoffeeMaker} 
+	 * Initializes some recipes to test with and the {@link CoffeeMaker}
 	 * object we wish to test.
-	 * 
-	 * @throws RecipeException  if there was an error parsing the ingredient 
+	 *
+	 * @throws RecipeException  if there was an error parsing the ingredient
 	 * 		amount when setting up the recipe.
 	 */
 	@Before
 	public void setUp() throws RecipeException {
 		coffeeMaker = new CoffeeMaker();
-		
+
+		//Set up for coffeeMakerWithRecipeBookMock
+		inventory = new Inventory();
+		recipeBookMock = mock(RecipeBook.class);
+		coffeeMakerWithRecipeBookMock = new CoffeeMaker(recipeBookMock, inventory);
+
 		//Set up for recipe 1
 		recipe1 = new Recipe();
 		recipe1.setName("Coffee");
@@ -67,7 +78,7 @@ public class CoffeeMakerTest {
 		recipe1.setAmtMilk("1");
 		recipe1.setAmtSugar("1");
 		recipe1.setPrice("50");
-		
+
 		//Set up for recipe 2
 		recipe2 = new Recipe();
 		recipe2.setName("Mocha");
@@ -76,7 +87,7 @@ public class CoffeeMakerTest {
 		recipe2.setAmtMilk("1");
 		recipe2.setAmtSugar("1");
 		recipe2.setPrice("75");
-		
+
 		//Set up for recipe 3
 		recipe3 = new Recipe();
 		recipe3.setName("Latte");
@@ -85,7 +96,7 @@ public class CoffeeMakerTest {
 		recipe3.setAmtMilk("3");
 		recipe3.setAmtSugar("1");
 		recipe3.setPrice("100");
-		
+
 		//Set up for recipe 4
 		recipe4 = new Recipe();
 		recipe4.setName("Hot Chocolate");
@@ -94,6 +105,9 @@ public class CoffeeMakerTest {
 		recipe4.setAmtMilk("20");
 		recipe4.setAmtSugar("20");
 		recipe4.setPrice("65");
+
+		recipeArray = new Recipe[]{recipe1,recipe4};
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 	}
 
 	/**
@@ -493,5 +507,156 @@ public class CoffeeMakerTest {
 	public void testMakeCoffeeOutOfInventory() {
 		coffeeMaker.addRecipe(recipe4);
 		assertEquals(70, coffeeMaker.makeCoffee(0, 70));
+	}
+
+	/**
+	 * Test Case ID : 27
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then the inventory updated correctly.
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void testInventoryMakeCoffeeSuccess() {
+		coffeeMaker.addRecipe(recipe1);
+		int change = coffeeMaker.makeCoffee(0, 30);
+		assertEquals("Coffee: 12\nMilk: 14\nSugar: 14\nChocolate: 15\n", coffeeMaker.checkInventory());
+	}
+
+	/**
+	 * Test Case ID : 28
+	 *
+	 * Given a coffee maker with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs but the selecting recipe is out of stock
+	 * Then the inventory won't be updated (purchase failed)
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void testInventoryMakeCoffeeFail() {
+		coffeeMaker.addRecipe(recipe4);
+		int change = coffeeMaker.makeCoffee(1, 30);
+		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMaker.checkInventory());
+	}
+
+	/**
+	 * Test Case ID : 29 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting the valid recipe and paying more than
+	 * 		the coffee costs
+	 * Then we get the correct change back.
+	 */
+	@Test
+	public void mockTestMakeCoffeeWithChange() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(25, coffeeMakerWithRecipeBookMock.makeCoffee(0, 75));
+	}
+
+	/**
+	 * Test Case ID : 30 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting the valid recipe and paying equal to
+	 * 		the coffee costs
+	 * Then we get the correct change back.
+	 */
+	@Test
+	public void mockTestMakeCoffeeWithNoChange() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(0, coffeeMakerWithRecipeBookMock.makeCoffee(0, 50));
+	}
+
+	/**
+	 * Test Case ID : 31 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting the valid recipe and paying less than
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 */
+	@Test
+	public void mockTestMakeCoffeeNotEnoughBalance() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(40, coffeeMakerWithRecipeBookMock.makeCoffee(0, 40));
+	}
+
+	/**
+	 * Test Case ID : 32 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting an invalid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void mockTestMakeCoffeeLargerRecipe() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(50, coffeeMakerWithRecipeBookMock.makeCoffee(1, 50));
+	}
+
+	/**
+	 * Test Case ID : 33 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting an invalid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void mockTestMakeCoffeeSmallerRecipe() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(50, coffeeMakerWithRecipeBookMock.makeCoffee(-1, 50));
+	}
+
+	/**
+	 * Test Case ID : 34 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs but the selecting recipe is out of stock
+	 * Then we get all cash back (purchase failed).
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void mockTestMockMakeCoffeeOutOfInventory() {
+		verify(recipeBookMock.getRecipes());
+		assertEquals(70, coffeeMakerWithRecipeBookMock.makeCoffee(1, 70));
+	}
+
+	/**
+	 * Test Case ID : 35 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs
+	 * Then the inventory updated correctly.
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void mockTestInventoryMakeCoffeeSuccess() {
+		verify(recipeBookMock.getRecipes());
+		int change = coffeeMakerWithRecipeBookMock.makeCoffee(0, 30);
+		assertEquals("Coffee: 12\nMilk: 14\nSugar: 14\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
+	}
+
+	/**
+	 * Test Case ID : 36 (Mock RecipeBook)
+	 *
+	 * Given a coffee maker with Mock RecipeBook with one valid recipe
+	 * When we make coffee, selecting a valid recipe and paying more than or equal
+	 * 		the coffee costs but the selecting recipe is out of stock
+	 * Then the inventory won't be updated (purchase failed)
+	 *
+	 */
+	@Test(expected = RecipeException.class)
+	public void mockTestInventoryMakeCoffeeFail() {
+		verify(recipeBookMock.getRecipes());
+		int change = coffeeMakerWithRecipeBookMock.makeCoffee(1, 30);
+		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
 	}
 }

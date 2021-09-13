@@ -107,7 +107,6 @@ public class CoffeeMakerTest {
 		recipe4.setPrice("65");
 
 		recipeArray = new Recipe[]{recipe1,recipe4};
-		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 	}
 
 	/**
@@ -201,12 +200,12 @@ public class CoffeeMakerTest {
 	 *
 	 * Given a coffee maker with the default inventory
 	 * When we delete an invalid recipe (larger)
-	 * Then we do get a null (delete failed)
+	 * Then we do get a RecipeException
 	 */
-	@Test
+	@Test (expected = RecipeException.class)
 	public void testDeleteLargerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
-		assertNull(coffeeMaker.deleteRecipe(1));
+		coffeeMaker.deleteRecipe(1);
 	}
 
 	/**
@@ -214,12 +213,12 @@ public class CoffeeMakerTest {
 	 *
 	 * Given a coffee maker with the default inventory
 	 * When we delete an invalid recipe (smaller)
-	 * Then we do get a null (delete failed)
+	 * Then we do get a RecipeException
 	 */
-	@Test
+	@Test (expected = RecipeException.class)
 	public void testDeleteSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
-		assertNull(coffeeMaker.deleteRecipe(-1));
+		coffeeMaker.deleteRecipe(-1);
 	}
 
 	/**
@@ -255,9 +254,9 @@ public class CoffeeMakerTest {
 	 *
 	 * Given a coffee maker with the default inventory
 	 * When we edit a recipe
-	 * Then we do not get an exception trying to edit the recipe
+	 * Then we do get a RecipeException
 	 */
-	@Test
+	@Test (expected = RecipeException.class)
 	public void testEditLargerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
 		assertNull(coffeeMaker.editRecipe(1,recipe2));
@@ -268,9 +267,9 @@ public class CoffeeMakerTest {
 	 *
 	 * Given a coffee maker with the default inventory
 	 * When we edit a recipe
-	 * Then we do not get an exception trying to edit the recipe
+	 * Then we do not get a RecipeException
 	 */
-	@Test
+	@Test (expected = RecipeException.class)
 	public void testEditSmallerRecipe() {
 		coffeeMaker.addRecipe(recipe1);
 		assertNull(coffeeMaker.editRecipe(-1, recipe2));
@@ -518,7 +517,7 @@ public class CoffeeMakerTest {
 	 * Then the inventory updated correctly.
 	 *
 	 */
-	@Test(expected = RecipeException.class)
+	@Test
 	public void testInventoryMakeCoffeeSuccess() {
 		coffeeMaker.addRecipe(recipe1);
 		int change = coffeeMaker.makeCoffee(0, 60);
@@ -534,10 +533,10 @@ public class CoffeeMakerTest {
 	 * Then the inventory won't be updated (purchase failed)
 	 *
 	 */
-	@Test(expected = RecipeException.class)
+	@Test
 	public void testInventoryMakeCoffeeFail() {
-		coffeeMaker.addRecipe(recipe4);
-		int change = coffeeMaker.makeCoffee(1, 60);
+		coffeeMaker.addRecipe(recipe1);
+		int change = coffeeMaker.makeCoffee(0, 30);
 		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMaker.checkInventory());
 	}
 
@@ -551,8 +550,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test
 	public void mockTestMakeCoffeeWithChange() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(25, coffeeMakerWithRecipeBookMock.makeCoffee(0, 75));
+		verify(recipeBookMock, times(4)).getRecipes();
 	}
 
 	/**
@@ -565,8 +565,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test
 	public void mockTestMakeCoffeeWithNoChange() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(0, coffeeMakerWithRecipeBookMock.makeCoffee(0, 50));
+		verify(recipeBookMock, times(4)).getRecipes();
 	}
 
 	/**
@@ -579,8 +580,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test
 	public void mockTestMakeCoffeeNotEnoughBalance() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(40, coffeeMakerWithRecipeBookMock.makeCoffee(0, 40));
+		verify(recipeBookMock, times(2)).getRecipes();
 	}
 
 	/**
@@ -594,8 +596,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test(expected = RecipeException.class)
 	public void mockTestMakeCoffeeLargerRecipe() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(50, coffeeMakerWithRecipeBookMock.makeCoffee(1, 50));
+		verify(recipeBookMock, times(2)).getRecipes();
 	}
 
 	/**
@@ -609,8 +612,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test(expected = RecipeException.class)
 	public void mockTestMakeCoffeeSmallerRecipe() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(50, coffeeMakerWithRecipeBookMock.makeCoffee(-1, 50));
+		verify(recipeBookMock, times(2)).getRecipes();
 	}
 
 	/**
@@ -624,8 +628,9 @@ public class CoffeeMakerTest {
 	 */
 	@Test(expected = RecipeException.class)
 	public void mockTestMockMakeCoffeeOutOfInventory() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		assertEquals(70, coffeeMakerWithRecipeBookMock.makeCoffee(1, 70));
+		verify(recipeBookMock, times(3)).getRecipes();
 	}
 
 	/**
@@ -637,11 +642,12 @@ public class CoffeeMakerTest {
 	 * Then the inventory updated correctly.
 	 *
 	 */
-	@Test(expected = RecipeException.class)
+	@Test
 	public void mockTestInventoryMakeCoffeeSuccess() {
-		verify(recipeBookMock.getRecipes());
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
 		int change = coffeeMakerWithRecipeBookMock.makeCoffee(0, 60);
 		assertEquals("Coffee: 12\nMilk: 14\nSugar: 14\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
+		verify(recipeBookMock, times(4)).getRecipes();
 	}
 
 	/**
@@ -653,10 +659,11 @@ public class CoffeeMakerTest {
 	 * Then the inventory won't be updated (purchase failed)
 	 *
 	 */
-	@Test(expected = RecipeException.class)
+	@Test
 	public void mockTestInventoryMakeCoffeeFail() {
-		verify(recipeBookMock.getRecipes());
-		int change = coffeeMakerWithRecipeBookMock.makeCoffee(1, 60);
+		when(recipeBookMock.getRecipes()).thenReturn(recipeArray);
+		int change = coffeeMakerWithRecipeBookMock.makeCoffee(0, 30);
 		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
+		verify(recipeBookMock, times(2)).getRecipes();
 	}
 }

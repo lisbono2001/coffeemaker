@@ -521,7 +521,7 @@ public class CoffeeMakerTest {
 	@Test(expected = RecipeException.class)
 	public void testInventoryMakeCoffeeSuccess() {
 		coffeeMaker.addRecipe(recipe1);
-		int change = coffeeMaker.makeCoffee(0, 30);
+		int change = coffeeMaker.makeCoffee(0, 60);
 		assertEquals("Coffee: 12\nMilk: 14\nSugar: 14\nChocolate: 15\n", coffeeMaker.checkInventory());
 	}
 
@@ -537,7 +537,7 @@ public class CoffeeMakerTest {
 	@Test(expected = RecipeException.class)
 	public void testInventoryMakeCoffeeFail() {
 		coffeeMaker.addRecipe(recipe4);
-		int change = coffeeMaker.makeCoffee(1, 30);
+		int change = coffeeMaker.makeCoffee(1, 60);
 		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMaker.checkInventory());
 	}
 
@@ -640,7 +640,7 @@ public class CoffeeMakerTest {
 	@Test(expected = RecipeException.class)
 	public void mockTestInventoryMakeCoffeeSuccess() {
 		verify(recipeBookMock.getRecipes());
-		int change = coffeeMakerWithRecipeBookMock.makeCoffee(0, 30);
+		int change = coffeeMakerWithRecipeBookMock.makeCoffee(0, 60);
 		assertEquals("Coffee: 12\nMilk: 14\nSugar: 14\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
 	}
 
@@ -656,7 +656,7 @@ public class CoffeeMakerTest {
 	@Test(expected = RecipeException.class)
 	public void mockTestInventoryMakeCoffeeFail() {
 		verify(recipeBookMock.getRecipes());
-		int change = coffeeMakerWithRecipeBookMock.makeCoffee(1, 30);
+		int change = coffeeMakerWithRecipeBookMock.makeCoffee(1, 60);
 		assertEquals("Coffee: 15\nMilk: 15\nSugar: 15\nChocolate: 15\n", coffeeMakerWithRecipeBookMock.checkInventory());
 	}
 }
